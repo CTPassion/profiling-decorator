@@ -48,10 +48,10 @@ disable = [
 ]
 
 [tool.hatch.version]
-path = "src/profile_decorator/version.py"
+path = "src/profiling_decorator/version.py"
 
 [tool.hatch.build.targets.sdist]
 include = ["/src"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/profile_decorator"]
+packages = ["src/profiling_decorator"]
