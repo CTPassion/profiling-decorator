@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 
 [project]
-name = "profile_decorator"
+name = "profiling_decorator"
 dynamic = ["version"]
 description = "Simplifies Python code profiling by offering an easy-to-use decorator for measuring function performance. Customize profiling with options for sort criteria and output format. Perfect for quickly identifying bottlenecks."
 readme = "README.md"
@@ -17,8 +17,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/CTPassion/profile_me"
-Issues = "https://github.com/CTPassion/profile_me/issues"
+Homepage = "https://github.com/CTPassion/profiling-decorator"
+Issues = "https://github.com/CTPassion/profiling-decorator/issues"
 
 [project.optional-dependencies]
 dev = [
