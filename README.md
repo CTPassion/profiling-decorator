@@ -36,7 +36,7 @@ package `CProfile`.
 
 Install the package
    ```sh
-   pip install profile-decorator
+   pip install profiling-decorator
    ```
 
 <!-- USAGE EXAMPLES -->
@@ -45,7 +45,7 @@ Install the package
 Import the profile decorator:
 
 ```python
-from profile_decorator import profile
+from profiling_decorator import profile
 ```
 
 #### Basic Usage
@@ -153,7 +153,7 @@ Distributed under the Apache Software License. See `LICENSE.txt` for more inform
 
 Joshua Brumpton - ja.brumpton@gmail.com
 
-Project Link: [github repo](https://github.com/CTPassion/profile-decorator)
+Project Link: [github repo](https://github.com/CTPassion/profiling-decorator)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
