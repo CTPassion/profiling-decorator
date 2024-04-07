@@ -7,6 +7,7 @@ History:
 0.0.2   Workflows
 0.0.3   PyPi workflow
 0.0.4   Tag after release to PyPi with workflow
+0.0.5   Release to PyPi on tag pushes
 """
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
