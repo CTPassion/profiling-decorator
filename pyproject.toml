@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "profile_decorator"
+dynamic = ["version"]
+description = "Simplifies Python code profiling by offering an easy-to-use decorator for measuring function performance. Customize profiling with options for sort criteria and output format. Perfect for quickly identifying bottlenecks."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name="Joshua Brumpton", email="ja.brumpton@gmail.com" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/CTPassion/profile_me"
+Issues = "https://github.com/CTPassion/profile_me/issues"
+
+[project.optional-dependencies]
+dev = [
+    "black"
+]
+test = [
+    "pytest",
+    "pytest-asyncio"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.pylint]
+max-line-length = 88
+disable = [
+    "C0114", # (missing-module-docstring)
+    "C0115", # (missing-class-docstring)
+    "C0116", # (missing-function-docstring)
+]
+
+[tool.hatch.version]
+path = "src/profile_decorator/version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/profile_decorator"]
