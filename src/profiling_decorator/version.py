@@ -9,4 +9,4 @@ History:
 0.0.4   Tag after release to PyPi with workflow
 """
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
