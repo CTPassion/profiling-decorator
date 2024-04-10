@@ -3,10 +3,11 @@
 import asyncio
 import logging
 import os
+import time
+
 import pytest
 
 from src.profiling_decorator import profile
-
 
 # Logger for capturing log output tests
 logger = logging.getLogger("test_logger")
@@ -47,7 +48,7 @@ def test_output_to_file():
     """Test output to file functionality."""
     filename = "test_profile_output.txt"
 
-    @profile(output="file", filename=filename)
+    @profile(destination=filename)
     def test_func():
         return sum(range(10))
 
@@ -65,7 +66,15 @@ def test_invalid_output_option():
     """Test handling of invalid output option."""
     with pytest.raises(ValueError):
 
-        @profile(output="invalid_option")
+        @profile(destination=12)
+        def test_func():
+            pass
+
+        test_func()
+
+    with pytest.raises(ValueError):
+
+        @profile(destination=logging.StreamHandler)
         def test_func():
             pass
 
@@ -75,13 +84,18 @@ def test_invalid_output_option():
 def test_logging_output(caplog):
     """Test logging output functionality."""
 
-    @profile(output="log")
+    tlogger = logging.getLogger("test_logger")
+    tlogger.setLevel(logging.INFO)
+
+    @profile(destination=tlogger)
     def test_func():
         return sum(range(10))
 
     with caplog.at_level(logging.INFO):
         test_func()
 
-    # Check if logging captured profile output
-    assert len(caplog.records) > 0, "No logging output captured."
-    assert "function calls" in caplog.text, "Profile output not captured in logs."
+    # Assert on the log messages captured by caplog
+    assert len(caplog.records) == 1  # Check the number of log messages captured
+    assert caplog.records[0].levelno == logging.INFO  # Check the log level
+    assert caplog.records[0].name == "test_logger"  # Check the logger name
+    assert 'test_func' in caplog.text

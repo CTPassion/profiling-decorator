@@ -91,12 +91,13 @@ The valid options for the sort_by parameter align with the SortKey attributes in
 - 'calls' - Number of calls to the function.
 - 'ncalls' - Same as calls, but distinguishes between direct and indirect calls.
 
-See the pstats module for a complete up to date list.
+See the pstats module for a complete up to date list. You can provide either a single sort by option as a str, or
+a sequence of sort by options as a list or tuple.
 
 ### Output to File
-To save the profiling results to a file, specify the output and filename parameters.
+To save the profiling results to a file, specify the destination.
 ```python
-@profile(output='file', filename='profile_stats.txt')
+@profile(destination='profile_results.txt')
 def example_function():
     # Function code to profile
     pass
@@ -104,18 +105,20 @@ def example_function():
 example_function()
 ```
 #### Output Options
-- 'stdout' - Print the profiling results to standard output (default).
-- 'file' - Write the profiling results to a file. Requires specifying the filename parameter.
-- 'log' - Log the profiling results using the configured logging system. This is useful for integrating profiling results into application logs. 
+- string or Path object (if a string, it will be converted to a Path object)
+- sys.stdout, sys.stderr
+- custom-configured logger
 
 #### Configuring Logging
-Before using the log output option, ensure the logging system is configured to handle messages at the INFO level or lower. Here's a basic configuration example:
+Before using the log output option, ensure the logging system is configured to handle messages at the INFO level or lower. 
+By default, logs are written at the INFO level. Here's a basic configuration example:
 ```python
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("example")
+logger.setLevel(logging.INFO)
 
-@profile(output='log')
+@profile(destination=logger)
 def example_function():
     # Function code to profile
     pass

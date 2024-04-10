@@ -1,39 +1,40 @@
-"""profiling decorator definition"""
+"""profiling decorator definition
 
-# pylint: disable = missing-function-docstring
+DEFAULT_ROWS = The default number of rows to limit output of CProfile to.
+"""
+
+import sys
+
+assert sys.version_info >= (3, 8)
+
 import asyncio
 import cProfile
-from functools import wraps
 import io
 import logging
 import pstats
-from pstats import SortKey
-from typing import Any, Callable, List, Optional, Union, Tuple
+from functools import wraps
+from pathlib import Path
+from typing import IO, Any, Callable, Sequence, Union
 
+from .validation import validate_destination, validate_sort_by
 
-VALID_SORTS = set(
-    val
-    for name, attribute in SortKey.__dict__.items()
-    if not name.startswith("__") and isinstance(attribute, tuple)
-    for val in attribute
-)
+DEFAULT_ROWS = 50
 
 
 def profile(
-    n_rows: int = 50,
-    sort_by: Union[str, List[str], Tuple] = "cumulative",
-    output: str = "stdout",
-    filename: Optional[str] = None,
-) -> Callable:
+    n_rows: int = DEFAULT_ROWS,
+    sort_by: Union[str, Sequence[str]] = "cumulative",
+    destination: Union[str, Path, logging.Logger, IO] = sys.stdout,
+) -> Callable[..., Any]:
     """
     Decorator to profile a function.
 
     Args:
         n_rows: Number of rows to reduce profile output to.
         sort_by: What statistic(s) to sort by in the results.
-        output: How to output the results.
-        filename: The filename to output to if output='file'
-
+        destination: The output destination, which can be a file path
+                     (string or Path object), sys.stdout, sys.stderr,
+                     or a custom-configured logger.
     Returns:
         func return
 
@@ -41,7 +42,10 @@ def profile(
         ValueError: Invalid value for parameter.
         IOError: Error writing to file.
     """
-    valid_outputs = {"stdout", "file", "log"}
+
+    # Initial validation
+    validate_destination(destination)
+    sort_by = validate_sort_by(sort_by)
 
     def decorator(func: Callable) -> Callable:
 
@@ -68,41 +72,30 @@ def profile(
 
     def process_profiling_results(pr: cProfile.Profile) -> None:
         s = io.StringIO()
-        # Fallback to 'cumulative' if sort_by is invalid
-        if isinstance(sort_by, (list, tuple)):
-            sort_by_valid = [s for s in sort_by if s in VALID_SORTS]
-        else:
-            sort_by_valid = [sort_by] if sort_by in VALID_SORTS else ["cumulative"]
 
-        ps = pstats.Stats(pr, stream=s).sort_stats(*sort_by_valid)
+        ps = pstats.Stats(pr, stream=s).sort_stats(*sort_by)
         ps.print_stats(n_rows)
 
-        # Handle output
-        if output not in valid_outputs:
-            raise ValueError(
-                f"Invalid output option '{output}'. Valid options are {valid_outputs}."
-            )
-
-        if output == "stdout":
-            print(s.getvalue())
-        elif output == "file":
-            if not filename:
-                raise ValueError("Filename must be provided when output is 'file'.")
+        # Now, handle the different types of destinations
+        if isinstance(destination, (str, Path)):
+            # When destination is a string or Path, treat it as a file path
+            destination_path = str(destination)  # Ensure it's a string for open()
             try:
-                with open(filename, "w+", encoding="utf-8") as f:
+                with open(destination_path, "w+", encoding="utf-8") as f:
                     f.write(s.getvalue())
             except IOError as e:
-                raise IOError(f"Error writing to file {filename}: {e}") from e
-        elif output == "log":
-            logger = logging.getLogger(__name__)
-            logger.info(s.getvalue())
+                raise IOError(f"Error writing to file {destination_path}: {e}") from e
+        elif isinstance(destination, logging.Logger):
+            # When destination is a Logger, log the profiling results
+            destination.info(s.getvalue())
         else:
-            raise ValueError("'output' must be one of 'stdout', 'file' or 'log'.")
+            # For file-like objects (including sys.stdout and sys.stderr),
+            # directly write to them
+            destination.write(s.getvalue())
 
     # Enable the decorator to be used without parentheses if no arguments are provided
     if callable(n_rows):
         temp_func = n_rows
-        n_rows = 50
         return decorator(temp_func)
 
     return decorator
